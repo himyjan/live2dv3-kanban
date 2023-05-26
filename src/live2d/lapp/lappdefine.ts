@@ -74,6 +74,9 @@ export const PriorityIdle = 1;
 export const PriorityNormal = 2;
 export const PriorityForce = 3;
 
+// MOC3の一貫性検証オプション
+export const MOCConsistencyValidationEnable = true;
+
 // デバッグ用ログの表示オプション
 export const DebugLogEnable = true;
 export const DebugTouchLogEnable = false;
@@ -103,7 +106,7 @@ export function initDefine (
   [ViewTranslateX, ViewTranslateY] = viewTranslate;
 }
 
-export function setCallback(onChangeScene, onModelLoaded) {
+export function setCallback(onChangeScene: (manager: LAppLive2DManager) => void, onModelLoaded: (model: LAppModel) => void) {
   OnChangeScene = onChangeScene;
   OnModelLoaded = onModelLoaded;
 }

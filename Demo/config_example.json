@@ -19,7 +19,7 @@
     "tool": {
         "randomMsg": {
             "icon": "fa fa-comment",
-            "hover": "随机台词",
+            "hover": "隨機台詞",
             "message": [
                 {
                     "text": "",
@@ -30,34 +30,34 @@
         },
         "randomExp": {
             "icon": "fa fa-smile-o",
-            "hover": "随机表情"
+            "hover": "隨機表情"
         },
         "changeModel": {
             "icon": "fa fa-user-circle-o",
-            "hover": "更换模型"
+            "hover": "更換模型"
         },
         "drag": {
             "icon": "fa fa-hand-paper-o",
-            "hover": "拖动",
+            "hover": "拖動",
             "dragging_icon": "fa fa-hand-grab-o"
         },
         "savePic": {
             "icon": "fa fa-camera",
-            "hover": "保存图像",
+            "hover": "保存圖像",
             "fileName": "L2DImage"
         },
         "about": {
             "icon": "fa fa-info",
-            "hover": "关于",
+            "hover": "關於",
             "url": "https://github.com/MichiyamaKaren/live2dv3-kanban"
         },
         "close": {
             "icon": "fa fa-close",
-            "hover": "关闭看板娘",
+            "hover": "關閉看板娘",
             "message": "",
             "msgTime": 2000,
             "closeTime": 3000
         }
     },
-    "onCopy": "你都复制了些什么呀,能让我看看吗？"
+    "onCopy": "你都複製了些什麼呀,能讓我看看嗎？"
 }

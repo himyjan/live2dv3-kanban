@@ -2,3 +2,5 @@ node_modules/
 
 Demo/config.json
 Demo/static/model
+
+.DS_Store

@@ -32,13 +32,18 @@ import { csmMap } from '@framework/type/csmmap';
 import { csmRect } from '@framework/type/csmrectf';
 import { csmString } from '@framework/type/csmstring';
 import { csmVector } from '@framework/type/csmvector';
-import { CubismLogError, CubismLogInfo } from '@framework/utils/cubismdebug';
+import {
+  CSM_ASSERT,
+  CubismLogError,
+  CubismLogInfo
+} from '@framework/utils/cubismdebug';
 
 import * as LAppDefine from './lappdefine';
 import { canvas, frameBuffer, gl, LAppDelegate } from './lappdelegate';
 import { LAppPal } from './lapppal';
 import { TextureInfo } from './lapptexturemanager';
 import { LAppWavFileHandler } from './lappwavfilehandler';
+import { CubismMoc } from '@framework/model/cubismmoc';
 
 import { OnModelLoaded } from './lappdefine';
 
@@ -116,7 +121,7 @@ export class LAppModel extends CubismUserModel {
       fetch(`${this._modelHomeDir}${modelFileName}`)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => {
-          this.loadModel(arrayBuffer);
+          this.loadModel(arrayBuffer, this._mocConsistency);
           this._state = LoadStep.LoadExpression;
 
           // callback
@@ -821,6 +826,30 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  public async hasMocConsistencyFromFile() {
+    CSM_ASSERT(this._modelSetting.getModelFileName().localeCompare(``));
+
+    // CubismModel
+    if (this._modelSetting.getModelFileName() != '') {
+      const modelFileName = this._modelSetting.getModelFileName();
+
+      const response = await fetch(`${this._modelHomeDir}${modelFileName}`);
+      const arrayBuffer = await response.arrayBuffer();
+
+      this._consistency = CubismMoc.hasMocConsistency(arrayBuffer);
+
+      if (!this._consistency) {
+        CubismLogInfo('Inconsistent MOC3.');
+      } else {
+        CubismLogInfo('Consistent MOC3.');
+      }
+
+      return this._consistency;
+    } else {
+      LAppPal.printMessage('Model data does not exist.');
+    }
+  }
+
   /**
    * コンストラクタ
    */
@@ -859,12 +888,17 @@ export class LAppModel extends CubismUserModel {
       CubismDefaultParameterId.ParamBodyAngleX
     );
 
+    if (LAppDefine.MOCConsistencyValidationEnable) {
+      this._mocConsistency = true;
+    }
+
     this._state = LoadStep.LoadAssets;
     this._expressionCount = 0;
     this._textureCount = 0;
     this._motionCount = 0;
     this._allMotionCount = 0;
     this._wavFileHandler = new LAppWavFileHandler();
+    this._consistency = false;
   }
 
   _modelSetting: ICubismModelSetting; // モデルセッティング情報
@@ -893,4 +927,5 @@ export class LAppModel extends CubismUserModel {
   _motionCount: number; // モーションデータカウント
   _allMotionCount: number; // モーション総数
   _wavFileHandler: LAppWavFileHandler; //wavファイルハンドラ
+  _consistency: boolean; // MOC3一貫性チェック管理用
 }
