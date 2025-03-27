@@ -1,0 +1,28 @@
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+
+export default defineConfig({
+  plugins: [],
+  resolve: {
+    alias: {
+      '@framework': resolve(__dirname, 'src/live2d/Framework/src'),
+      '@L2DApp': resolve(__dirname, 'src/live2d/lapp'),
+    },
+  },
+  server: {
+    port: 5000,
+    host: '0.0.0.0',
+    strictPort: true,
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: './src/custom/init.js',
+      output: {
+        entryFileNames: 'l2dkanban.min.js', // Minified output filename
+        dir: 'dist', // Specify the output directory
+      },
+    },
+    minify: 'esbuild', // Minification option (can be 'esbuild', 'terser', or false)
+  },
+});

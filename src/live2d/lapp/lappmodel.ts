@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import 'whatwg-fetch';
+import { ofetch } from 'ofetch';
 
 import { CubismDefaultParameterId } from '@framework/cubismdefaultparameterid';
 import { CubismModelSettingJson } from '@framework/cubismmodelsettingjson';
@@ -32,13 +32,18 @@ import { csmMap } from '@framework/type/csmmap';
 import { csmRect } from '@framework/type/csmrectf';
 import { csmString } from '@framework/type/csmstring';
 import { csmVector } from '@framework/type/csmvector';
-import { CubismLogError, CubismLogInfo } from '@framework/utils/cubismdebug';
+import {
+  CSM_ASSERT,
+  CubismLogError,
+  CubismLogInfo
+} from '@framework/utils/cubismdebug';
 
 import * as LAppDefine from './lappdefine';
 import { canvas, frameBuffer, gl, LAppDelegate } from './lappdelegate';
 import { LAppPal } from './lapppal';
 import { TextureInfo } from './lapptexturemanager';
 import { LAppWavFileHandler } from './lappwavfilehandler';
+import { CubismMoc } from '@framework/model/cubismmoc';
 
 import { OnModelLoaded } from './lappdefine';
 
@@ -81,8 +86,8 @@ export class LAppModel extends CubismUserModel {
   public loadAssets(dir: string, fileName: string): Promise<void> {
     this._modelHomeDir = dir;
 
-    return fetch(`${this._modelHomeDir}${fileName}`)
-      .then(response => response.arrayBuffer())
+    return ofetch(`${this._modelHomeDir}${fileName}`, { responseType: "arrayBuffer" })
+      .then(response => response)
       .then(arrayBuffer => {
         const setting: ICubismModelSetting = new CubismModelSettingJson(
           arrayBuffer,
@@ -113,10 +118,10 @@ export class LAppModel extends CubismUserModel {
     if (this._modelSetting.getModelFileName() != '') {
       const modelFileName = this._modelSetting.getModelFileName();
 
-      fetch(`${this._modelHomeDir}${modelFileName}`)
-        .then(response => response.arrayBuffer())
+      ofetch(`${this._modelHomeDir}${modelFileName}`, { responseType: "arrayBuffer" })
+        .then(response => response)
         .then(arrayBuffer => {
-          this.loadModel(arrayBuffer);
+          this.loadModel(arrayBuffer, this._mocConsistency);
           this._state = LoadStep.LoadExpression;
 
           // callback
@@ -138,8 +143,8 @@ export class LAppModel extends CubismUserModel {
           const expressionFileName =
             this._modelSetting.getExpressionFileName(i);
 
-          fetch(`${this._modelHomeDir}${expressionFileName}`)
-            .then(response => response.arrayBuffer())
+          ofetch(`${this._modelHomeDir}${expressionFileName}`, { responseType: "arrayBuffer" })
+            .then(response => response)
             .then(arrayBuffer => {
               const motion: ACubismMotion = this.loadExpression(
                 arrayBuffer,
@@ -180,8 +185,8 @@ export class LAppModel extends CubismUserModel {
       if (this._modelSetting.getPhysicsFileName() != '') {
         const physicsFileName = this._modelSetting.getPhysicsFileName();
 
-        fetch(`${this._modelHomeDir}${physicsFileName}`)
-          .then(response => response.arrayBuffer())
+        ofetch(`${this._modelHomeDir}${physicsFileName}`, { responseType: "arrayBuffer" })
+          .then(response => response)
           .then(arrayBuffer => {
             this.loadPhysics(arrayBuffer, arrayBuffer.byteLength);
 
@@ -204,8 +209,8 @@ export class LAppModel extends CubismUserModel {
       if (this._modelSetting.getPoseFileName() != '') {
         const poseFileName = this._modelSetting.getPoseFileName();
 
-        fetch(`${this._modelHomeDir}${poseFileName}`)
-          .then(response => response.arrayBuffer())
+        ofetch(`${this._modelHomeDir}${poseFileName}`, { responseType: "arrayBuffer" })
+          .then(response => response)
           .then(arrayBuffer => {
             this.loadPose(arrayBuffer, arrayBuffer.byteLength);
 
@@ -275,8 +280,8 @@ export class LAppModel extends CubismUserModel {
       if (this._modelSetting.getUserDataFile() != '') {
         const userDataFile = this._modelSetting.getUserDataFile();
 
-        fetch(`${this._modelHomeDir}${userDataFile}`)
-          .then(response => response.arrayBuffer())
+        ofetch(`${this._modelHomeDir}${userDataFile}`, { responseType: "arrayBuffer" })
+          .then(response => response)
           .then(arrayBuffer => {
             this.loadUserData(arrayBuffer, arrayBuffer.byteLength);
 
@@ -566,8 +571,8 @@ export class LAppModel extends CubismUserModel {
     let autoDelete = false;
 
     if (motion == null) {
-      fetch(`${this._modelHomeDir}${motionFileName}`)
-        .then(response => response.arrayBuffer())
+      ofetch(`${this._modelHomeDir}${motionFileName}`, { responseType: "arrayBuffer" })
+        .then(response => response)
         .then(arrayBuffer => {
           motion = this.loadMotion(
             arrayBuffer,
@@ -732,8 +737,8 @@ export class LAppModel extends CubismUserModel {
         );
       }
 
-      fetch(`${this._modelHomeDir}${motionFileName}`)
-        .then(response => response.arrayBuffer())
+      ofetch(`${this._modelHomeDir}${motionFileName}`, { responseType: "arrayBuffer" })
+        .then(response => response)
         .then(arrayBuffer => {
           const tmpMotion: CubismMotion = this.loadMotion(
             arrayBuffer,
@@ -821,6 +826,30 @@ export class LAppModel extends CubismUserModel {
     }
   }
 
+  public async hasMocConsistencyFromFile() {
+    CSM_ASSERT(this._modelSetting.getModelFileName().localeCompare(``));
+
+    // CubismModel
+    if (this._modelSetting.getModelFileName() != '') {
+      const modelFileName = this._modelSetting.getModelFileName();
+
+      const response = await ofetch(`${this._modelHomeDir}${modelFileName}`);
+      const arrayBuffer = await response;
+
+      this._consistency = CubismMoc.hasMocConsistency(arrayBuffer);
+
+      if (!this._consistency) {
+        CubismLogInfo('Inconsistent MOC3.');
+      } else {
+        CubismLogInfo('Consistent MOC3.');
+      }
+
+      return this._consistency;
+    } else {
+      LAppPal.printMessage('Model data does not exist.');
+    }
+  }
+
   /**
    * コンストラクタ
    */
@@ -859,12 +888,17 @@ export class LAppModel extends CubismUserModel {
       CubismDefaultParameterId.ParamBodyAngleX
     );
 
+    if (LAppDefine.MOCConsistencyValidationEnable) {
+      this._mocConsistency = true;
+    }
+
     this._state = LoadStep.LoadAssets;
     this._expressionCount = 0;
     this._textureCount = 0;
     this._motionCount = 0;
     this._allMotionCount = 0;
     this._wavFileHandler = new LAppWavFileHandler();
+    this._consistency = false;
   }
 
   _modelSetting: ICubismModelSetting; // モデルセッティング情報
@@ -893,4 +927,5 @@ export class LAppModel extends CubismUserModel {
   _motionCount: number; // モーションデータカウント
   _allMotionCount: number; // モーション総数
   _wavFileHandler: LAppWavFileHandler; //wavファイルハンドラ
+  _consistency: boolean; // MOC3一貫性チェック管理用
 }

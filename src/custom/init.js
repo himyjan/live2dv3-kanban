@@ -9,11 +9,11 @@ export { config_global as default };
 
 let config_global = null;
 
-// settings在setup()中开始被引用，即作为window.onload触发，故需要在页面加载之前配置好settings
+// settings在setup()中開始被引用，即作為window.onload觸發，故需要在頁面加載之前配置好settings
 window.L2Dsettings = {
     configPath: '',
-    resourcesPath: '',  // 指定资源文件（模型）保存的路径
-    backImageName: '', // 指定背景图片
+    resourcesPath: '',  // 指定資源文件（模型）保存的路徑
+    backImageName: '', // 指定背景圖片
     modelDirs: [],
     canvasId: '',
     onChangeScene: (manager) => { },
@@ -37,7 +37,7 @@ function setupL2D(config) {
     
     initL2DPanel(config);
 
-    initLApp(); // 初始化L2DAPP需要在canvas对象创建之后进行
+    initLApp(); // 初始化L2DAPP需要在canvas對象創建之後進行
 
     resetToolbar($('.live2d-tool'), tools, config);
     addEventsHandler(windowEvents, autoEvents, config);
@@ -61,7 +61,7 @@ function initL2DPanel(config) {
         'margin-right': `${height * config.global.canvas.marginRight}`
     })[0].getContext("webgl", { preserveDrawingBuffer: true });
 
-    // 若显示设置bottom，jquery UI的拖拽会为保持其不变而改变元素自身的高度
+    // 若顯示設置bottom，jquery UI的拖拽會為保持其不變而改變元素自身的高度
     let panel_top = window.innerHeight - (config.global.canvas.bottom + config.global.canvas.height);
     $('.live2d-main').css('top', `${panel_top}px`);
 
@@ -89,7 +89,7 @@ function resetToolbar(toolbar, tools_callback, config) {
         );
     }
 
-    // 设置拖拽效果
+    // 設置拖拽效果
     if (tools_callback.drag && config.tool.drag) {
         let handle = $('.live2d-tool > .' + config.tool.drag.icon.split(' ').join('.'));
         $('.live2d-main').draggable({
@@ -99,7 +99,7 @@ function resetToolbar(toolbar, tools_callback, config) {
         });
     }
 
-    // 配置CSS样式
+    // 配置CSS樣式
     let height = config.global.canvas.height;
     let lineHeight = config.global.toolbar.lineHeight, lineHeightPx;
     let topPx = height * config.global.toolbar.top;

@@ -2,7 +2,7 @@ import { showMessage } from "./message.js";
 
 export { windowEvents, autoEvents };
 
-// 监听窗口事件
+// 監聽窗口事件
 let windowEvents = {
     copy: function (config, event) {
         event.stopPropagation();
@@ -10,5 +10,5 @@ let windowEvents = {
     }
 }
 
-// 自动触发
+// 自動觸發
 let autoEvents = [];

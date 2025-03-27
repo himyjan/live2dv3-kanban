@@ -26,10 +26,10 @@ function resetMtnSelect(model) {
     })
 }
 
-L2Dsettings.configPath = 'config.json';
-L2Dsettings.resourcesPath = 'static/model/';  // 指定资源文件（模型）保存的路径
-L2Dsettings.backImageName = ''; // 指定背景图片
-L2Dsettings.modelDirs = ''.split(',');
+L2Dsettings.configPath = '/live2d_models/config.json';
+L2Dsettings.resourcesPath = '/live2d_models/';  // 指定資源文件（模型）保存的路徑
+L2Dsettings.backImageName = ''; // 指定背景圖片
+L2Dsettings.modelDirs = 'karen,karen_school'.split(',');
 L2Dsettings.canvasId = 'live2d';
 
 L2Dsettings.onModelLoaded = (model) => {
